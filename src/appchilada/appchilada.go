@@ -97,7 +97,7 @@ func (m AggregateMap) Timings() map[string]*Timing {
 	return timings
 }
 
-func Aggregator(eventChan chan Event) {
+func Aggregator(eventChan chan Event, backend Backend) {
 	events := make([]Event, 0, 64)
 
 	// Notify every 10 seconds
@@ -112,6 +112,11 @@ func Aggregator(eventChan chan Event) {
 			for _, event := range events {
 				m.AddEvent(&event)
 			}
+			go func() {
+				if err := backend.Store(m, time.LocalTime()); err != nil {
+					fmt.Printf("Error storing aggregation: %s", err)
+				}
+			}()
 			// Print values for debugging
 			for name, count := range m.Counts() {
 				fmt.Printf("Count: %s=%d\n", name, count.Value)

@@ -17,13 +17,23 @@ func main() {
 	socket := initializeSocket(*address, *port)
 	defer socket.Close()
 
+	backend := &appchilada.CouchDbBackend{
+		Host: "127.0.0.1",
+		Port: "5984",
+		DatabaseName: "appchilada_test",
+	}
+	if err:= backend.Open(); err != nil {
+		panic(err.String())
+	}
+
 	eventChan := make(chan appchilada.Event)
-	go appchilada.Aggregator(eventChan)
+	// This is where all the aggregation is done
+	go appchilada.Aggregator(eventChan, backend)
 
 	buffer := make([]byte, 4096)
 	for {
 		if n, err := socket.Read(buffer); err != nil {
-			fmt.Printf("Read error: %s", err.String())
+			fmt.Printf("Read error: %s\n", err.String())
 		} else {
 			handleMessage(eventChan, buffer[:n])
 		}
@@ -48,7 +58,7 @@ func initializeSocket(address string, port int) *net.UDPConn {
 func handleMessage(eventChan chan appchilada.Event, message []byte) {
 	var event appchilada.Event
 	if err := json.Unmarshal(message, &event); err != nil {
-		fmt.Printf("JSON decode error: %s", err.String())
+		fmt.Printf("JSON decode error: %s\n", err.String())
 		return
 	}
 	eventChan <- event
