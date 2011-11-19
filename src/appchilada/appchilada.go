@@ -1,9 +1,10 @@
 package appchilada
 
 import (
-	"fmt"
+	// "fmt"
 	"time"
 	"math"
+	"log"
 )
 
 const (
@@ -107,22 +108,22 @@ func Aggregator(eventChan chan Event, backend Backend) {
 		case event := <-eventChan:
 			events = append(events, event)
 		case _ = <-timer:
-			fmt.Printf("Aggregating %d events\n", len(events))
+			log.Printf("Aggregating %d events", len(events))
 			m := make(AggregateMap)
 			for _, event := range events {
 				m.AddEvent(&event)
 			}
 			go func() {
 				if err := backend.Store(m, time.LocalTime()); err != nil {
-					fmt.Printf("Error storing aggregation: %s", err)
+					log.Printf("Error storing aggregation: %s", err)
 				}
 			}()
 			// Print values for debugging
 			for name, count := range m.Counts() {
-				fmt.Printf("Count: %s=%d\n", name, count.Value)
+				log.Printf("Count: %s=%d\n", name, count.Value)
 			}
 			for name, timing := range m.Timings() {
-				fmt.Printf("Timer: %s=%f (Min: %d, Max: %d)\n", name, timing.Avg(), timing.Min, timing.Max)
+				log.Printf("Timer: %s=%f (Min: %d, Max: %d)\n", name, timing.Avg(), timing.Min, timing.Max)
 			}
 			events = events[0:0]
 		}

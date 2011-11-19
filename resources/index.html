@@ -1,0 +1,16 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Appchilada</title>
+		<script type="text/javascript" src="/assets/js/jquery-1.7.min.js"></script>
+		<script type="text/javascript" src="/assets/js/highcharts.js"></script>
+		<script type="text/javascript" src="/assets/js/themes/gray.js"></script>
+	</head>
+	<body>
+		<ul id="aggregates">
+		{{range .names}}
+			<li><a href="/show/{{.}}">{{.}}</a></li>
+		{{end}}
+		</ul>
+	</body>
+</html>
