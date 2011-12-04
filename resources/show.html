@@ -20,14 +20,15 @@
 						marginRight: 10,
 						events: {
 							load: function() {
-				
 								// set up the updating of the chart each second
+								/*
 								var series = this.series[0];
 								setInterval(function() {
 									var x = (new Date()).getTime(), // current time
 										y = Math.random();
 									series.addPoint([x, y], true, true);
 								}, 1000);
+								*/
 							}
 						}
 					},
@@ -62,21 +63,15 @@
 						enabled: false
 					},
 					series: [{
-						name: 'Random data',
-						data: (function() {
-							// generate an array of random data
-							var data = [],
-								time = (new Date()).getTime(),
-								i;
-							
-							for (i = -19; i <= 0; i++) {
-								data.push({
-									x: time + i * 1000,
-									y: Math.random()
-								});
-							}
-							return data;
-						})()
+						name: '{{.Name}}',
+						data: [
+							{{range .Rows}}
+								{
+								y: {{.Value}},
+								x: {{.Time.Seconds}}000
+								},
+							{{end}}
+						]
 					}]
 				});
 				
@@ -86,12 +81,13 @@
 		</script>		
 	</head>
 	<body>
-		<h1>{{.results.Name}}</h1>
+		<h1>{{.Name}}</h1>
 		<div id="container" style="width: 800px; height: 400px; margin: 0 auto"></div>
-		<ul id="aggregates">
-		{{range .results.Rows}}
-			<li>{{.Value}} ({{.Time}})</li>
-		{{end}}
+		<ul id="menu">
+			<li><a href="/show/{{.Name}}?start=1323017545">Last hour</a></li>
+			<li><a href="/show/{{.Name}}?start=1322934745">Last 24 hours</a></li>
+			<li><a href="/show/{{.Name}}?start=1322329945">Last week</a></li>
+			<li><a href="/show/{{.Name}}?start=1320343257">Last month</a></li>
 		</ul>
 	</body>
 </html>

@@ -10,6 +10,7 @@ import (
 const (
 	EventTypeCount  = 0
 	EventTypeTiming = 1
+	seconds = 1e9
 )
 
 type Event struct {
@@ -98,11 +99,11 @@ func (m AggregateMap) Timings() map[string]*Timing {
 	return timings
 }
 
-func Aggregator(eventChan chan Event, backend Backend) {
+// Stores events sent to the channel
+// Every interval seconds the events will be aggregated and stored in the backend
+func Aggregator(eventChan chan Event, backend Backend, interval int) {
 	events := make([]Event, 0, 64)
-
-	// Notify every 10 seconds
-	timer := time.Tick(10 * 1e9)
+	timer := time.Tick(int64(interval) * seconds)
 	for {
 		select {
 		case event := <-eventChan:
